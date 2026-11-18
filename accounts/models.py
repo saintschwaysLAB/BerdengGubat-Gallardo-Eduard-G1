@@ -4,7 +4,8 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class CustomUser(AbstractUser):
     class Role(models.TextChoices):
-        CUSTOMER = "CUSTOMER", "Customer"
+        CUSTOMER = "CUSTOMER", "Donor"
+        ORG_LEADER = "ORG_LEADER", "Organization leader"
         ADMIN = "ADMIN", "Admin"
 
 

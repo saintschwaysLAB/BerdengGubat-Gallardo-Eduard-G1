@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
@@ -50,6 +50,8 @@ class StyledLoginView(LoginView):
         user = self.request.user
         if user.role == CustomUser.Role.ADMIN:
             return redirect("admin_dashboard")
+        if user.role == CustomUser.Role.ORG_LEADER:
+            return redirect("organization_dashboard")
         return redirect("dashboard")
 
 

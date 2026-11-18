@@ -14,9 +14,12 @@ class StyledAuthenticationForm(AuthenticationForm):
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     role = forms.ChoiceField(
-        choices=CustomUser.Role.choices,
+        choices=(
+            (CustomUser.Role.CUSTOMER, CustomUser.Role.CUSTOMER.label),
+            (CustomUser.Role.ORG_LEADER, CustomUser.Role.ORG_LEADER.label),
+        ),
         initial=CustomUser.Role.CUSTOMER,
-        required=True,
+        required=False,
     )
 
     class Meta(UserCreationForm.Meta):
@@ -33,6 +36,9 @@ class CustomUserCreationForm(UserCreationForm):
         if CustomUser.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("This email is already registered.")
         return email
+
+    def clean_role(self):
+        return self.cleaned_data.get("role") or CustomUser.Role.CUSTOMER
 
     def clean(self):
         cleaned_data = super().clean()

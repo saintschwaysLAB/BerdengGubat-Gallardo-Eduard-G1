@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3">Delete {{ object.name }}?</h1>
+                <p>Organizations with saved donations cannot be deleted. You can deactivate one by editing its listing instead.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-danger" type="submit">Delete organization</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'organization_detail' object.pk %}">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

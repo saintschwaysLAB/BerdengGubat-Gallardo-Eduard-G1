@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h1 class="h3">Delete “{{ object.title }}”?</h1>
+                <p>Campaigns with saved donation records cannot be deleted. Deactivate the campaign by editing it instead.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-danger" type="submit">Delete fundraiser</button>
+                    <a class="btn btn-outline-secondary" href="{% url 'organization_dashboard' %}">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

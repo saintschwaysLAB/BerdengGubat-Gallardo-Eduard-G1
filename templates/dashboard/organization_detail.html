@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <div class="dashboard-panel">
+        <div class="panel-header">
+            <span class="badge text-bg-success mb-2">{{ organization.get_partner_type_display }}</span>
+            <h1>{{ organization.name }}</h1>
+            <p>Partner: {{ organization.partner_name }} · {{ organization.location }}</p>
+        </div>
+        <div class="panel-body">
+            <p class="mb-4">{{ organization.description|linebreaksbr }}</p>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
+                <div>
+                    <h2 class="h4 mb-1">Fundraising campaigns</h2>
+                    <p class="text-muted mb-0">Support reforestation projects from this organization.</p>
+                </div>
+                {% if can_manage %}
+                    <a class="btn btn-success" href="{% url 'campaign_create' organization.pk %}">Create fundraiser</a>
+                {% endif %}
+            </div>
+            <div class="row g-3 mb-4">
+                {% for campaign in campaigns %}
+                    <div class="col-lg-6">
+                        <article class="card campaign-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <h3 class="h5">{{ campaign.title }}</h3>
+                                    {% if not campaign.is_active %}<span class="badge text-bg-secondary">Inactive</span>{% endif %}
+                                </div>
+                                <p>{{ campaign.description|linebreaksbr }}</p>
+                                <div class="d-flex justify-content-between small mb-2">
+                                    <span>PHP {{ campaign.raised_amount|default_if_none:"0.00"|floatformat:2 }} raised</span>
+                                    <span>Goal PHP {{ campaign.goal_amount|floatformat:2 }}</span>
+                                </div>
+                                <div class="progress campaign-progress mb-3" role="progressbar" aria-label="Fundraising progress" aria-valuenow="{{ campaign.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                    <div class="progress-bar" style="width: {{ campaign.progress_percent }}%"></div>
+                                </div>
+                                {% if campaign.deadline %}<p class="small text-muted">Campaign deadline: {{ campaign.deadline|date:"M j, Y" }}</p>{% endif %}
+                                <div class="d-flex gap-2 flex-wrap">
+                                    {% if can_manage %}
+                                        <a class="btn btn-outline-primary btn-sm" href="{% url 'campaign_edit' campaign.pk %}">Edit fundraiser</a>
+                                        <a class="btn btn-outline-danger btn-sm" href="{% url 'campaign_delete' campaign.pk %}">Delete fundraiser</a>
+                                    {% elif campaign.is_active and user.role == "CUSTOMER" %}
+                                        <a class="btn btn-success" href="{% url 'campaign_donation_create' campaign.pk %}">Support this campaign</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-brand-info mb-0">
+                            {% if can_manage %}No fundraisers yet. Create one to make it visible to donors.{% else %}This organization has no active fundraising campaigns yet.{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            {% if can_manage %}
+                <p><strong>Saved donation records:</strong> PHP {{ organization.donation_total|default_if_none:"0.00"|floatformat:2 }}</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a class="btn btn-outline-primary" href="{% url 'organization_edit' organization.pk %}">Edit organization</a>
+                    <a class="btn btn-outline-secondary" href="{% url 'organization_donations' organization.pk %}">Review donations</a>
+                    <a class="btn btn-outline-danger" href="{% url 'organization_delete' organization.pk %}">Delete organization</a>
+                    {% if user.role == "ADMIN" or user.is_superuser %}
+                        <a class="btn btn-outline-secondary" href="{% url 'admin_dashboard' %}">Back to dashboard</a>
+                    {% else %}
+                        <a class="btn btn-outline-secondary" href="{% url 'organization_dashboard' %}">Back to dashboard</a>
+                    {% endif %}
+                </div>
+            {% elif user.role == "CUSTOMER" and organization.is_active %}
+                <a class="btn btn-success" href="{% url 'donation_create' organization.pk %}">Record a donation</a>
+                <a class="btn btn-outline-secondary ms-2" href="{% url 'dashboard' %}">Back to dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
