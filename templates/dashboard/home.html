@@ -2,29 +2,92 @@
 
 {% block content %}
 <div class="dashboard-shell">
-    <div class="dashboard-panel">
-        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <section class="dashboard-panel mb-4">
+        <div class="panel-header compact-welcome d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h1>Welcome, {{ user.first_name|default:user.username }}!</h1>
-                <p>Customer dashboard</p>
+                <p>Find a reforestation campaign to support.</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <a class="btn-pill primary" href="{% url 'profile' %}">View profile</a>
-                <a class="btn-pill" href="{% url 'profile_edit' %}">Edit profile</a>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="small text-muted">Your recorded donations: <strong>PHP {{ donation_total|default_if_none:"0.00"|floatformat:2 }}</strong></span>
+                <a class="btn-pill" href="{% url 'profile' %}">Profile</a>
             </div>
+        </div>
+    </section>
+
+    <section class="dashboard-panel">
+        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1>Reforestation fundraisers</h1>
+                <p>Choose a campaign and help its organization reach its fundraising goal.</p>
+            </div>
+            <a class="btn-pill" href="{% url 'campaigns' %}">Browse all campaigns</a>
         </div>
         <div class="panel-body">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Role</div>
-                    <div class="stat-value">{{ user.get_role_display }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Members</div>
-                    <div class="stat-value">{{ member_count }}</div>
-                </div>
+            <div class="row g-4">
+                {% for campaign in campaigns %}
+                    <div class="col-lg-4 col-md-6">
+                        <article class="card campaign-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <span class="badge text-bg-success">{{ campaign.organization.get_partner_type_display }}</span>
+                                    {% if campaign.deadline %}
+                                        <span class="small text-muted">Until {{ campaign.deadline|date:"M j, Y" }}</span>
+                                    {% endif %}
+                                </div>
+                                <h2 class="h4 mb-1">{{ campaign.title }}</h2>
+                                <p class="small text-muted mb-3">{{ campaign.organization.name }} · {{ campaign.organization.location }}</p>
+                                <p>{{ campaign.description|truncatewords:28 }}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between small mb-2">
+                                        <span><strong>PHP {{ campaign.raised_amount|default_if_none:"0.00"|floatformat:2 }}</strong> raised</span>
+                                        <span>Goal PHP {{ campaign.goal_amount|floatformat:2 }}</span>
+                                    </div>
+                                    <div class="progress campaign-progress mb-3" role="progressbar" aria-label="Fundraising progress" aria-valuenow="{{ campaign.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar" style="width: {{ campaign.progress_percent }}%"></div>
+                                    </div>
+                                    <a class="btn btn-success w-100" href="{% url 'campaign_donation_create' campaign.pk %}">Support this campaign</a>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-brand-info mb-0">No active fundraising campaigns are available yet. Please check back soon.</div>
+                    </div>
+                {% endfor %}
             </div>
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mt-5 mb-3">
+                <div>
+                    <h2 class="h3 mb-1">Your donation records</h2>
+                    <p class="text-muted mb-0">Records are saved for tracking; this feature does not process payments.</p>
+                </div>
+                <a class="btn-pill" href="{% url 'donations' %}">View all records</a>
+            </div>
+            {% if donations %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Campaign / organization</th><th>Amount</th><th>Date</th><th></th></tr></thead>
+                        <tbody>
+                            {% for donation in donations %}
+                                <tr>
+                                    <td>
+                                        {% if donation.campaign %}{{ donation.campaign.title }}<br>{% endif %}
+                                        <span class="text-muted">{{ donation.organization.name }}</span>
+                                    </td>
+                                    <td>PHP {{ donation.amount|floatformat:2 }}</td>
+                                    <td>{{ donation.created_at|date:"M j, Y" }}</td>
+                                    <td><a href="{% url 'donation_edit' donation.pk %}">Edit</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">You have not saved any donation records yet.</p>
+            {% endif %}
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}

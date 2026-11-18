@@ -24,9 +24,26 @@
                     <div class="stat-value">{{ admin_count }}</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Status</div>
-                    <div class="stat-value">Online</div>
+                    <div class="stat-label">Organization leaders</div>
+                    <div class="stat-value">{{ leader_count }}</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-label">Organizations</div>
+                    <div class="stat-value">{{ organization_count }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fundraising campaigns</div>
+                    <div class="stat-value">{{ campaign_count }}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Donation records</div>
+                    <div class="stat-value">{{ donation_count }}</div>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap mt-4">
+                <a class="btn-pill primary" href="{% url 'organizations' %}">Manage organizations</a>
+                <a class="btn-pill" href="{% url 'campaigns' %}">View fundraising campaigns</a>
+                <a class="btn-pill" href="{% url 'donations' %}">View donation records</a>
             </div>
         </div>
     </div>
