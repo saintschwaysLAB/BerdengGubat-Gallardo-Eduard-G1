@@ -92,6 +92,12 @@
                 color: #fff;
             }
 
+            .alert-brand-info {
+                color: var(--green-4);
+                background-color: #e6eee5;
+                border-color: #bfd0bd;
+            }
+
             .main-shell {
                 max-width: 1280px;
                 margin: 0 auto;
@@ -309,8 +315,42 @@
                 color: var(--muted);
             }
 
+            .panel-header.compact-welcome {
+                padding: 1rem 1.5rem;
+            }
+
+            .compact-welcome h1 {
+                font-size: clamp(1.25rem, 2vw, 1.6rem);
+                letter-spacing: -0.035em;
+            }
+
+            .compact-welcome p {
+                margin-top: 0.15rem;
+                font-size: 0.92rem;
+            }
+
             .panel-body {
                 padding: 2rem;
+            }
+
+            .campaign-card {
+                border: 1px solid var(--line);
+                border-radius: 18px;
+                background: rgba(255,255,255,0.58);
+                box-shadow: 0 10px 24px var(--shadow);
+            }
+
+            .campaign-card .card-body {
+                padding: 1.4rem;
+            }
+
+            .campaign-progress {
+                height: 0.65rem;
+                background: #e3e8df;
+            }
+
+            .campaign-progress .progress-bar {
+                background-color: var(--green-3);
             }
 
             .stats-grid {
@@ -428,12 +468,28 @@
         <header class="app-header">
             <div class="app-header-inner">
                 <div style="flex: 1; text-align: left;">
-                    <a href="{% url 'login' %}" class="brand">Berdeng Gubat</a>
+                    {% if user.is_authenticated %}
+                        {% if user.role == "ADMIN" or user.is_superuser %}
+                            <a href="{% url 'admin_dashboard' %}" class="brand">Berdeng Gubat</a>
+                        {% elif user.role == "ORG_LEADER" %}
+                            <a href="{% url 'organization_dashboard' %}" class="brand">Berdeng Gubat</a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="brand">Berdeng Gubat</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'login' %}" class="brand">Berdeng Gubat</a>
+                    {% endif %}
                 </div>
                 <div class="nav-right">
                     <a href="#" class="nav-link">Our mission</a>
                     {% if request.path not in '/accounts/login/' and request.path not in '/accounts/signup/' and request.path != '/' %}
-                        <a href="{% url 'dashboard' %}" class="nav-link">Back to home</a>
+                        {% if user.is_authenticated and user.role == "ADMIN" or user.is_superuser %}
+                            <a href="{% url 'admin_dashboard' %}" class="nav-link">Back to home</a>
+                        {% elif user.is_authenticated and user.role == "ORG_LEADER" %}
+                            <a href="{% url 'organization_dashboard' %}" class="nav-link">Back to home</a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="nav-link">Back to home</a>
+                        {% endif %}
                     {% endif %}
                     {% if user.is_authenticated and request.path != '/accounts/login/' and request.path != '/accounts/signup/' %}
                         <a href="{% url 'profile' %}" class="nav-link">Profile</a>
