@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-shell">
+    <section class="dashboard-panel">
+        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1>Reforestation fundraisers</h1>
+                <p>Explore campaigns and their fundraising progress.</p>
+            </div>
+            {% if user.role == "ORG_LEADER" %}
+                <a class="btn-pill" href="{% url 'organization_dashboard' %}">Back to dashboard</a>
+            {% elif user.role == "ADMIN" or user.is_superuser %}
+                <a class="btn-pill" href="{% url 'admin_dashboard' %}">Back to dashboard</a>
+            {% else %}
+                <a class="btn-pill" href="{% url 'dashboard' %}">Back to dashboard</a>
+            {% endif %}
+        </div>
+        <div class="panel-body">
+            <div class="row g-4">
+                {% for campaign in campaigns %}
+                    <div class="col-lg-4 col-md-6">
+                        <article class="card campaign-card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                    <span class="badge text-bg-success">{{ campaign.organization.get_partner_type_display }}</span>
+                                    {% if campaign.deadline %}<span class="small text-muted">Until {{ campaign.deadline|date:"M j, Y" }}</span>{% endif %}
+                                </div>
+                                <h2 class="h4">{{ campaign.title }}</h2>
+                                <p class="small text-muted">{{ campaign.organization.name }} · {{ campaign.organization.location }}</p>
+                                {% if not campaign.is_active %}<span class="badge text-bg-secondary align-self-start mb-2">Inactive</span>{% endif %}
+                                <p>{{ campaign.description|truncatewords:32 }}</p>
+                                <div class="mt-auto">
+                                    <div class="d-flex justify-content-between small mb-2">
+                                        <span>PHP {{ campaign.raised_amount|default_if_none:"0.00"|floatformat:2 }} raised</span>
+                                        <span>Goal PHP {{ campaign.goal_amount|floatformat:2 }}</span>
+                                    </div>
+                                    <div class="progress campaign-progress mb-3" role="progressbar" aria-label="Fundraising progress" aria-valuenow="{{ campaign.progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+                                        <div class="progress-bar" style="width: {{ campaign.progress_percent }}%"></div>
+                                    </div>
+                                    {% if user.role == "CUSTOMER" %}
+                                        <a class="btn btn-success w-100" href="{% url 'campaign_donation_create' campaign.pk %}">Support this campaign</a>
+                                    {% elif user.role == "ORG_LEADER" or user.role == "ADMIN" or user.is_superuser %}
+                                        <div class="d-flex gap-2">
+                                            <a class="btn btn-outline-primary" href="{% url 'campaign_edit' campaign.pk %}">Edit fundraiser</a>
+                                            <a class="btn btn-outline-secondary" href="{% url 'organization_detail' campaign.organization.pk %}">View organization</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% empty %}
+                    <div class="col-12"><div class="alert alert-brand-info mb-0">No campaigns are available.</div></div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
